@@ -27,7 +27,7 @@ export FW_KEY='uw-chn.flywheel.io:YOUR_API_KEY'
 
 ## Run order
 
-First inspect exactly what the date filter will select. Add `--sub-id LABEL` when only one exact Flywheel subject label is wanted.
+First inspect exactly what the configured date filter will select across all subjects. This is the default intake path.
 
 ```bash
 source config/mri_preproc.env
@@ -36,16 +36,24 @@ FLYWHEEL_START_DATE="$FLYWHEEL_START_DATE" scripts/download_data_from_flywheel_t
   --project-path "$FLYWHEEL_PROJECT_PATH" --image "$FLYWHEEL_IMAGE"
 ```
 
-After reviewing the manifest, submit the selected subject downloads, then run the remaining stages in order:
+After reviewing the manifest, download all selected sessions and then run the remaining stages in order:
 
 ```bash
-scripts/submit_flywheel_download_hyak.sh config/mri_preproc.env SUBJECT_LABEL
+FLYWHEEL_START_DATE="$FLYWHEEL_START_DATE" bash scripts/download_data_from_flywheel_to_hyak.sh --list-only 0 \
+  --output-dir "$DICOM_DIR" --manifest "$MANIFEST_DIR/flywheel_sessions.csv" \
+  --project-path "$FLYWHEEL_PROJECT_PATH" --image "$FLYWHEEL_IMAGE"
 scripts/un_zip.sh config/mri_preproc.env
 scripts/submit_dicom_to_nii.sh config/mri_preproc.env
 scripts/submit_mriqc_array_hyak.sh config/mri_preproc.env
 scripts/submit_mriqc_group_hyak.sh config/mri_preproc.env
 scripts/run_qc_parser.sh config/mri_preproc.env
 scripts/run_dataset_info_report_hyak.sh config/mri_preproc.env "$SUMMARY_DIR/bids_sessions.csv"
+```
+
+To download only one or more exact Flywheel subject labels instead, use the optional Hyak wrapper:
+
+```bash
+scripts/submit_flywheel_download_hyak.sh config/mri_preproc.env SUBJECT_LABEL [SUBJECT_LABEL ...]
 ```
 
 Run the group step only after the participant array is complete. The final QC deliverables are `summaries/QC_anat.csv`, `summaries/QC_func.csv`, `summaries/QC_parse_manifest.csv`, and `summaries/sum.json`; companion BIDS inventory CSVs are written beside `bids_sessions.csv`. `Poor_Quality` is a threshold-based review flag, not an automatic exclusion.

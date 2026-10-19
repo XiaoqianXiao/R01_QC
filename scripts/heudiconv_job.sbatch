@@ -41,7 +41,7 @@ for session_dir in "$subject_dir"/ses-*; do
     done < <(find -L "$series_dir" -type f \( -iname '*.dcm' -o -iname '*.dicom' \) -print0 | sort -z)
   done
   (( file_count > 0 )) || { echo "ERROR: no selected DICOMs in $session_dir" >&2; exit 1; }
-  apptainer exec -B "$HEUDICONV_WORK_DIR:/input:ro" -B "$BIDS_DIR:/bids" \
+  apptainer exec -B "$HEUDICONV_WORK_DIR:/input:ro" -B "$DICOM_DIR:$DICOM_DIR:ro" -B "$BIDS_DIR:/bids" \
     -B "$REPO_DIR/scripts/heuristic_reproin_like.py:/heuristic.py:ro" "$HEUDICONV_IMAGE" \
     heudiconv -d '/input/{subject}/ses-{session}/*' -s "$subject" -ss "$session" -f /heuristic.py -c dcm2niix -b -o /bids --overwrite
   apptainer exec -B "$BIDS_DIR:/bids" -B "$REPO_DIR/scripts/link_bold_to_fieldmaps.py:/link.py:ro" \
