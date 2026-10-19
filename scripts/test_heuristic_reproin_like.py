@@ -45,17 +45,19 @@ def test_duplicate_t1w_gets_run_entities():
     assert any('run-02_T1w' in path for path in output)
 
 
-def test_staging_follows_symlinked_dicoms():
+def test_direct_input_uses_selected_dicoms():
     job_script = Path(__file__).with_name('heudiconv_job.sbatch').read_text()
     assert 'find -L "$series_dir"' in job_script
     assert "-iname '*.dicom'" in job_script
     assert "-iname '*.dcm'" in job_script
-    staging_find = job_script.split('find -L "$series_dir"', 1)[1].split('-print0', 1)[0]
-    assert '-maxdepth 1' not in staging_find
+    assert '-B "$DICOM_DIR:/input:ro"' in job_script
+    assert 'heudiconv --files "${dicoms[@]}"' in job_script
+    assert 'HEUDICONV_WORK_DIR' not in job_script
+    assert 'ln -sfn' not in job_script
 
 
 if __name__ == '__main__':
     test_session_mapping()
     test_duplicate_t1w_gets_run_entities()
-    test_staging_follows_symlinked_dicoms()
+    test_direct_input_uses_selected_dicoms()
     print('heuristic regression checks: OK')
