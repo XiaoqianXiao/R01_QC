@@ -31,6 +31,8 @@ First inspect exactly what the configured date filter will select across all sub
 
 ```bash
 source config/mri_preproc.env
+FLYWHEEL_START_DATE="2026-10-02"
+#next only need started 2026-10-19
 FLYWHEEL_START_DATE="$FLYWHEEL_START_DATE" scripts/download_data_from_flywheel_to_hyak.sh --list-only 1 \
   --output-dir "$DICOM_DIR" --manifest "$MANIFEST_DIR/flywheel_sessions.csv" \
   --project-path "$FLYWHEEL_PROJECT_PATH" --image "$FLYWHEEL_IMAGE"
