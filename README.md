@@ -31,8 +31,8 @@ First inspect exactly what the configured date filter will select across all sub
 
 ```bash
 source config/mri_preproc.env
-FLYWHEEL_START_DATE="2026-10-02"
-#next only need started 2026-10-19
+FLYWHEEL_START_DATE="2026-10-26"
+#next only need started 2026-11-01
 FLYWHEEL_START_DATE="$FLYWHEEL_START_DATE" scripts/download_data_from_flywheel_to_hyak.sh --list-only 1 \
   --output-dir "$DICOM_DIR" --manifest "$MANIFEST_DIR/flywheel_sessions.csv" \
   --project-path "$FLYWHEEL_PROJECT_PATH" --image "$FLYWHEEL_IMAGE"
@@ -49,6 +49,7 @@ scripts/submit_dicom_to_nii.sh config/mri_preproc.env
 scripts/submit_mriqc_array_hyak.sh config/mri_preproc.env
 scripts/submit_mriqc_group_hyak.sh config/mri_preproc.env
 scripts/run_qc_parser.sh config/mri_preproc.env
+#not always needed
 scripts/run_dataset_info_report_hyak.sh config/mri_preproc.env "$SUMMARY_DIR/bids_sessions.csv"
 ```
 
